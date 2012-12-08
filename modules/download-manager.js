@@ -853,7 +853,7 @@ minibuffer_auto_complete_preferences.download = true;
 minibuffer.prototype.read_download = function () {
     keywords(arguments,
              $prompt = "Download",
-             $completer = all_word_completer(
+             $completer = new all_word_completer(
                  $completions = function (visitor) {
                      var dls = download_manager_service.activeDownloads;
                      while (dls.hasMoreElements()) {

@@ -30,6 +30,22 @@ function make_array (ob) {
 
 
 /**
+ * Return first element of an array.
+ */
+function first (x) {
+    return x[0];
+}
+
+
+/**
+ * Return second element of an array.
+ */
+function second (x) {
+    return x[1];
+}
+
+
+/**
  * array_find returns the first element in the given array that satisfies
  * predicate p.  returns null on failure.
  */

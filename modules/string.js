@@ -207,4 +207,20 @@ function version_compare (a, b) {
 }
 
 
+/**
+ * common_prefix_length returns the length of the portions at the start of
+ * strings A and B that are the same, up to optional LIMIT.
+ */
+function common_prefix_length (a, b, limit) {
+    var alen = a.length;
+    var blen = b.length;
+    if (limit == null || alen < limit)
+        limit = alen;
+    if (blen < limit)
+        limit = blen;
+    for (var i = 0; i < limit && a[i] == b[i]; ++i);
+    return i;
+}
+
+
 provide("string");

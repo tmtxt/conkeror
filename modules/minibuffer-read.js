@@ -202,7 +202,7 @@ text_entry_minibuffer_state.prototype = {
     },
 
     destroy: function () {
-        if (this.completions != null && this.completions.destroy)
+        if (this.completions)
             this.completions.destroy();
         delete this.completions;
         if (this.completions_cont)
@@ -235,9 +235,9 @@ text_entry_minibuffer_state.prototype = {
                     s.completions_timer_ID = null;
                     s.update_completions(true /* auto */, true /* update completions display */);
                 }, this.auto_complete_delay);
-            return;
+        } else {
+            s.update_completions(true /* auto */, true /* update completions display */);
         }
-        s.update_completions(true /* auto */, true /* update completions display */);
     },
 
     update_completions_display: function () {
@@ -273,8 +273,8 @@ text_entry_minibuffer_state.prototype = {
             this.completions_cont.throw(abort());
             this.completions_cont = null;
         }
-        let c = this.completer(m._input_text, m._selection_start,
-                               auto && this.auto_complete_conservative);
+        if (m._selection_start > 0 || ! auto || ! this.auto_complete_conservative)
+            var c = this.completer.complete(m._input_text, m._selection_start);
         if (is_coroutine(c)) {
             var s = this;
             var already_done = false;
@@ -300,13 +300,15 @@ text_entry_minibuffer_state.prototype = {
         /* The completer should return undefined if completion was not
          * attempted due to auto being true.  Otherwise, it can return
          * null to indicate no completions. */
-        if (this.completions != null && this.completions.destroy)
+        if (this.completions)
             this.completions.destroy();
 
         this.completions = c;
         this.completions_valid = true;
         this.applied_common_prefix = false;
 
+        //XXX: we want to get require-match from the webjump, not from the
+        //     completions object.
         if (c && ("get_require_match" in c))
             this.require_match = c.get_require_match();
         if (this.require_match == null)
@@ -432,10 +434,7 @@ function exit_minibuffer (window) {
         let c = s.completions;
         let i = s.selected_completion_index;
         if (c != null && i >= 0 && i < c.count) {
-            if (c.get_value != null)
-                match = c.get_value(i);
-            else
-                match = c.get_string(i);
+            match = c.get_value(i);
         } else {
             m.message("No match");
             return;
@@ -511,7 +510,7 @@ minibuffer.prototype.read_command = function () {
     keywords(
         arguments,
         $prompt = "Command", $history = "command",
-        $completer = prefix_completer(
+        $completer = new prefix_completer(
             $completions = function (visitor) {
                 for (let [k,v] in Iterator(interactive_commands)) {
                     visitor(v);
@@ -530,7 +529,7 @@ minibuffer.prototype.read_user_variable = function () {
     keywords(
         arguments,
         $prompt = "User variable", $history = "user_variable",
-        $completer = prefix_completer(
+        $completer = new prefix_completer(
             $completions = function (visitor) {
                 for (var i in user_variables) visitor(i);
             },
@@ -546,7 +545,7 @@ minibuffer.prototype.read_user_variable = function () {
 minibuffer.prototype.read_preference = function () {
     keywords(arguments,
              $prompt = "Preference:", $history = "preference",
-             $completer = prefix_completer(
+             $completer = new prefix_completer(
                  $completions = preferences.getBranch(null).getChildList("", {}),
                  $get_description = function (pref) {
                      let default_value = get_default_pref(pref);

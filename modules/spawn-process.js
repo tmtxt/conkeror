@@ -17,7 +17,7 @@ function spawn_process_internal (program, args, blocking) {
 }
 
 var PATH_programs = null;
-function get_shell_command_completer () {
+function get_shell_command_completer () { //XXX: subclass prefix_completer
     if (PATH_programs == null) {
         PATH_programs = [];
         var file = Cc["@mozilla.org/file/local;1"]
@@ -34,8 +34,8 @@ function get_shell_command_completer () {
         }
         PATH_programs.sort();
     }
-    return prefix_completer($completions = PATH_programs,
-                            $get_string = function (x) x);
+    return new prefix_completer($completions = PATH_programs,
+                                $get_string = function (x) x);
 }
 
 // use default

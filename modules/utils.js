@@ -721,4 +721,23 @@ function set_protocol_handler (protocol, handler) {
     hs.store(info);
 }
 
+
+/**
+ * The identity function; returns its argument unchanged.
+ */
+function identity (x) {
+    return x;
+}
+
+
+/**
+ * Return a function that always returns x.
+ */
+function constantly (x) {
+    return function () {
+        return x;
+    };
+}
+
+
 provide("utils");

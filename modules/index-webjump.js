@@ -219,7 +219,7 @@ interactive("webjump-get-index",
         var key = yield I.minibuffer.read(
             $prompt = "Fetch index for index webjump:",
             $history = "webjump",
-            $completer = all_word_completer(
+            $completer = new all_word_completer(
                 $completions = completions),
             $require_match = true);
         var jmp = index_webjumps[key];
