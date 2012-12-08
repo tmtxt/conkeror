@@ -50,6 +50,7 @@ define_keymap("isearch_keymap");
 define_keymap("single_character_options_minibuffer_keymap");
 define_keymap("minibuffer_message_keymap");
 define_keymap("read_buffer_keymap", $parent = minibuffer_keymap);
+define_keymap("read_url_keymap", $parent = minibuffer_keymap);
 
 
 define_keymap("caret_keymap");

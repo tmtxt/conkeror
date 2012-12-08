@@ -62,3 +62,10 @@ define_fallthrough(read_buffer_keymap, match_any_unmodified_character);
 
 define_key(read_buffer_keymap, "C-k", "read-buffer-kill-buffer");
 
+
+/*
+ * read_url_keymap
+ */
+define_fallthrough(read_url_keymap, match_any_unmodified_character);
+
+define_key(read_url_keymap, "C-k", "read-url-kill-item");

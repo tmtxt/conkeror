@@ -401,6 +401,7 @@ minibuffer.prototype.read_url = function () {
         $use_history = arguments.$use_history,
         $sort_order = arguments.$sort_order);
     var result = yield this.read(
+        $keymap = read_url_keymap,
         $prompt = arguments.$prompt,
         $history = arguments.$history,
         $completer = completer,
@@ -414,6 +415,41 @@ minibuffer.prototype.read_url = function () {
         throw ("invalid url or webjump (\""+ result +"\")");
     yield co_return(load_spec(result));
 };
+
+
+interactive("read-url-kill-item",
+    "Kill the currently selected item in the completions list"+
+    "in a read url minibuffer interaction, if it is killable.",
+    function (I) {
+        var s = I.window.minibuffer.current_state;
+        var i = s.selected_completion_index;
+        var c = s.completions;
+        if (i == -1)
+            return;
+        var item = c.get_value(i);
+        if (item instanceof Ci.nsINavHistoryResultNode) {
+            var uri = make_uri(item.uri);
+            var history = Cc["@mozilla.org/browser/nav-history-service;1"]
+                .getService(Ci.nsIBrowserHistory);
+            history.removePage(uri);
+            if (nav_bookmarks_service.isBookmarked(uri)) {
+                var count = { value: null };
+                var ids = nav_bookmarks_service.getBookmarkIdsForURI(uri, count);
+                for (var j = 0; j < count.value; ++j) {
+                    nav_bookmarks_service.removeItem(ids[j]);
+                }
+            }
+            I.minibuffer.ignore_input_events = true;
+            I.minibuffer._input_text = "";
+            I.minibuffer.ignore_input_events = false;
+        } else {
+            I.minibuffer.message("Cannot kill item "+item);
+            return;
+        }
+        s.completer.refresh();
+        s.handle_input(I.window.minibuffer);
+    });
+
 
 
 /*
