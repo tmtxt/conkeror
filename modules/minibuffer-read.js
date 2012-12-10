@@ -307,10 +307,7 @@ text_entry_minibuffer_state.prototype = {
         this.completions_valid = true;
         this.applied_common_prefix = false;
 
-        //XXX: we want to get require-match from the webjump, not from the
-        //     completions object.
-        if (c && ("get_require_match" in c))
-            this.require_match = c.get_require_match();
+        this.require_match = this.completer.require_match;
         if (this.require_match == null)
             this.require_match = this.require_match_default;
 

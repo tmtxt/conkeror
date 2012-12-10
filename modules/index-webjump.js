@@ -53,8 +53,7 @@ index_webjump_completions.prototype = {
     __proto__: completions.prototype,
     toString: function () "#<index_webjump_completions>",
     descriptions: null,
-    get_description: function (i) this.descriptions[i],
-    get_require_match: function () this.completer.webjump.require_completions
+    get_description: function (i) this.descriptions[i]
 };
 
 
@@ -67,7 +66,7 @@ index_webjump_completer.prototype = {
     __proto__: completer.prototype,
     toString: function () "#<index_webjump_completer>",
     complete: function (input, pos) {
-        var require = this.webjump.require_completions;
+        var require = this.webjump.require_match;
 
         /* Update full completion list if necessary. */
         if (require && ! this.webjump.file.exists())
@@ -109,7 +108,7 @@ function index_webjump (name, url, file) {
     webjump.call(this, name, this.make_handler(),
                  $completer = this.make_completer(),
                  forward_keywords(arguments));
-    if (this.require_completions && ! this.file)
+    if (this.require_match && ! this.file)
         throw interactive_error("Index file not defined for " + this.name);
 }
 index_webjump.prototype = {
@@ -119,7 +118,6 @@ index_webjump.prototype = {
     mime_type: null,
     xpath_expr: null,
     make_completion: null,
-    require_completions: false,
     completions: null,
     file_time: 0,
     tidy_command: null,
@@ -185,14 +183,15 @@ index_webjump.prototype = {
 
 function index_webjump_xhtml (name, url, file, xpath_expr) {
     keywords(arguments);
-    index_webjump.call(this, name, url, file, forward_keywords(arguments));
+    index_webjump.call(this, name, url, file,
+                       $require_match = true,
+                       forward_keywords(arguments));
     this.xpath_expr = xpath_expr;
 }
 index_webjump_xhtml.prototype = {
     constructor: index_webjump_xhtml,
     __proto__: index_webjump.prototype,
     toString: function () "#<index_webjump_xhtml>",
-    require_completions: true,
     mime_type: "application/xhtml+xml",
     get tidy_command () index_xpath_webjump_tidy_command,
 

@@ -7,39 +7,33 @@
  * COPYING file.
 **/
 
-function history_completions (completer, root, require_match) {
+function history_completions (completer, root) {
     completions.call(this, completer);
     this.root = root;
     this.root.containerOpen = true;
     this.count = this.root.childCount;
-    this.require_match = require_match;
 }
 history_completions.prototype = {
     constructor: history_completions,
     __proto__: completions.prototype,
     toString: function () "#<history_completions>",
     root: null,
-    require_match: false,
     destroy: function () { this.root.containerOpen = false; },
     get_string: function (i) this.root.getChild(i).uri,
     get_description: function (i) this.root.getChild(i).title,
     get_value: function (i) this.root.getChild(i),
-    get_require_match: function () this.require_match
 };
 
 
-define_keywords("$use_history", "$use_bookmarks", "$require_match",
-                "$sort_order");
+define_keywords("$use_history", "$use_bookmarks", "$sort_order");
 function history_completer () {
     keywords(arguments,
              $use_history = false,
              $use_bookmarks = false,
-             $require_match = false,
              $sort_order = "visitcount_descending");
     completer.call(this);
     this.use_history = arguments.$use_history;
     this.use_bookmarks = arguments.$use_bookmarks;
-    this.require_match = arguments.$require_match;
     this.sort_order = arguments.$sort_order;
 }
 history_completer.prototype = {
@@ -64,7 +58,7 @@ history_completer.prototype = {
         else
             options.queryType = options.QUERY_TYPE_UNIFIED; //XXX: not implemented yet
         var root = nav_history_service.executeQuery(query, options).root;
-        return new history_completions(this, root, this.require_match);
+        return new history_completions(this, root);
     }
 };
 

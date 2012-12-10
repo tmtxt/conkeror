@@ -7,15 +7,18 @@
  * COPYING file.
 **/
 
-define_keywords("$alternative", "$completer", "$doc", "$post_data");
+define_keywords("$alternative", "$completer", "$doc", "$post_data",
+                "$require_match");
 function webjump (name, handler) {
     keywords(arguments,
-             $alternative = null);
+             $alternative = null,
+             $require_match = false);
     this.name = name;
     this.alternative = arguments.$alternative;
     this.completer = arguments.$completer;
     this.doc = arguments.$doc;
     this.post_data = arguments.$post_data;
+    this.require_match = arguments.$require_match;
     if (typeof handler == "function") {
         if (handler.length == 0)
             this.argument = false;
@@ -49,6 +52,7 @@ webjump.prototype = {
     completer: null,
     doc: null,
     argument: null, // null represents optional argument
+    require_match: false,
     _make_string_handler: function (template) {
         var b = template.indexOf('%s');
         return function (arg) {
@@ -161,13 +165,16 @@ webjump_completer.prototype = {
     __proto__: completer.prototype,
     toString: function () "#<webjump_completer>",
     webjump_name_completer: null,
+    require_match: false,
     complete: function (input, pos) {
+        this.require_match = false;
         let [w, key, sep, arg] = match_webjump(input) || [];
         var current_part = position_in_strings([key, sep, arg], pos);
         if (current_part % 2)
             current_part++;
         if (current_part) { // complete on the argument
             if (w.completer) {
+                this.require_match = w.require_match;
                 var c = yield w.completer.complete(arg, pos - key.length - sep.length);
                 yield co_return(nest_completions(c, w.name + " "));
             } else {

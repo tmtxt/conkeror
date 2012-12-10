@@ -376,16 +376,6 @@ merged_completions.prototype = {
     },
     get_value: function (i) {
         return this.forward("get_value", i);
-    },
-    get_require_match: function () {
-        var b = false;
-        for (var j = 0; j < this.nresults; j++) {
-            var r = this.results[j];
-            if ("get_require_match" in r && r.get_require_match != null) {
-                b = b || r.get_require_match();
-            }
-        }
-        return b;
     }
 };
 
@@ -405,9 +395,7 @@ merged_completer.prototype = {
         var count = 0;
         for (let i = 0; i < this.ncompleters; ++i) {
             let r = yield this.completers[i].complete(input, pos);
-            //XXX: dispatching on the mere presence of get_require_match
-            //     is a fragile hack
-            if (r != null && (r.count > 0 || "get_require_match" in r)) {
+            if (r != null && r.count > 0) {
                 merged_results.push(r);
                 count += r.count;
             }
@@ -418,6 +406,14 @@ merged_completer.prototype = {
         for (var i = 0; i < this.ncompleters; ++i) {
             this.completers[i].refresh();
         }
+    },
+    get require_match () {
+        for (var i = 0; i < this.ncompleters; ++i) {
+            var r = this.completers[i];
+            if (r.require_match)
+                return r.require_match;
+        }
+        return false;
     }
 };
 
