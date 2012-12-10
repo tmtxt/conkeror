@@ -343,12 +343,6 @@ merged_completions.prototype = {
     toString: function () "#<merged_completions>",
     results: null,
     nresults: 0,
-    for_each: function (name) {
-        for (var j = 0; j < this.nresults; ++j) {
-            var r = this.results[j];
-            r[name]();
-        }
-    },
     forward: function (name, i) {
         for (var j = 0; j < this.nresults; ++j) {
             var r = this.results[j];
@@ -359,7 +353,9 @@ merged_completions.prototype = {
         return null;
     },
     destroy: function () {
-        this.for_each("destroy");
+        for (var j = 0; j < this.nresults; ++j) {
+            this.results[j].destroy();
+        }
     },
     //XXX: index_of: function (x) { },
     get_string: function (i) {
