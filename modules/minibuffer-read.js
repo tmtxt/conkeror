@@ -47,9 +47,7 @@ completions_tree_view.prototype = {
             return null;
         if (column.index == 0)
             return c.get_string(row);
-        if (c.get_description)
-            return c.get_description(row);
-        return "";
+        return c.get_description(row);
     },
     setTree: function (treebox) { this.treeBox = treebox; },
     isContainer: function (row) { return false; },
@@ -59,7 +57,7 @@ completions_tree_view.prototype = {
     getImageSrc: function (row, col) {
         var c = this.minibuffer_state.completions;
         if (this.minibuffer_state.enable_icons &&
-            c.get_icon && col.index == 0)
+            col.index == 0)
         {
             return c.get_icon(row);
         }
@@ -318,7 +316,7 @@ text_entry_minibuffer_state.prototype = {
                     i = 0;
                 else if (c.default_completion != null)
                     i = c.default_completion;
-                else if (this.default_completion && this.completions.index_of)
+                else if (this.default_completion)
                     i = this.completions.index_of(this.default_completion);
             }
             this.selected_completion_index = i;
