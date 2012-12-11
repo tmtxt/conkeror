@@ -105,7 +105,10 @@ define_variable("webjump_partial_match", true,
     "that webjump only if this is true.");
 
 function match_webjump (str) {
-    let [key, sep] = str.split(/(\s+)/, 2);
+    var sp = str.split(/(\s+)/, 2);
+    var key = sp[0];
+    if (sp.length > 1)
+        var sep = sp[1];
     if (sep)
         var arg = str.substr(key.length + sep.length);
 
