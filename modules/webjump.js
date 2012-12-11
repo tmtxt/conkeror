@@ -168,7 +168,8 @@ webjump_completer.prototype = {
     require_match: false,
     complete: function (input, pos) {
         this.require_match = false;
-        let [w, key, sep, arg] = match_webjump(input) || [];
+        let [w, key, sep, arg] = match_webjump(input) ||
+            [null, null, null, null];
         var current_part = position_in_strings([key, sep, arg], pos);
         if (current_part % 2)
             current_part++;
