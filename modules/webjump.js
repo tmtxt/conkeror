@@ -120,23 +120,22 @@ function match_webjump (str) {
         for (let [k, v] in Iterator(webjumps)) {
             if (String(k).substring(0, key.length) == key) {
                 if (match) // prefix must be unique for a partial match
-                    return null;
+                    return [null, null, null, null];
                 match = v;
             }
         }
     }
     if (match)
         return [match, key, sep, arg];
-    return null;
+    return [null, null, null, null];
 }
 
 
 function get_webjump (value) {
-    var res = match_webjump(value);
-    if (!res)
+    let [w, key, sep, arg] = match_webjump(value);
+    if (! w)
         return null;
-    let [match, key, sep, arg] = res;
-    return match.call(arg);
+    return w.call(arg);
 }
 
 function get_url_or_webjump (input) {
@@ -171,8 +170,7 @@ webjump_completer.prototype = {
     require_match: false,
     complete: function (input, pos) {
         this.require_match = false;
-        let [w, key, sep, arg] = match_webjump(input) ||
-            [null, null, null, null];
+        let [w, key, sep, arg] = match_webjump(input);
         var current_part = position_in_strings([key, sep, arg], pos);
         if (current_part % 2)
             current_part++;
