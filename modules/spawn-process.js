@@ -17,7 +17,8 @@ function spawn_process_internal (program, args, blocking) {
 }
 
 var PATH_programs = null;
-function get_shell_command_completer () { //XXX: subclass prefix_completer
+
+function shell_command_completer () {
     if (PATH_programs == null) {
         PATH_programs = [];
         var file = Cc["@mozilla.org/file/local;1"]
@@ -34,9 +35,13 @@ function get_shell_command_completer () { //XXX: subclass prefix_completer
         }
         PATH_programs.sort();
     }
-    return new prefix_completer($completions = PATH_programs,
-                                $get_string = function (x) x);
+    prefix_completer.call(this, $completions = PATH_programs);
 }
+shell_command_completer.prototype = {
+    constructor: shell_command_completer,
+    __proto__: prefix_completer.prototype,
+    toString: function () "#<shell_command_completer>"
+};
 
 // use default
 minibuffer_auto_complete_preferences["shell-command"] = null;
@@ -60,7 +65,7 @@ minibuffer.prototype.read_shell_command = function () {
             return true;
         },
         forward_keywords(arguments),
-        $completer = get_shell_command_completer());
+        $completer = new shell_command_completer());
     yield co_return(result);
 }
 
