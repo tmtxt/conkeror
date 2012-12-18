@@ -10,24 +10,33 @@ require("io.js");
 require("completers.js");
 
 
-function file_name_completions (completer, data) {
+function directory_p (file) {
+    return file.exists() && file.isDirectory();
+}
+
+
+function file_path_completions (completer, data) {
     completions.call(this, completer, data);
 }
-file_name_completions.prototype = {
-    constructor: file_name_completions,
+file_path_completions.prototype = {
+    constructor: file_path_completions,
     __proto__: completions.prototype,
-    toString: function () "#<file_name_completions>",
+    toString: function () "#<file_path_completions>",
     get_string: function (i) this.data[i].path
 };
 
 
+define_keywords("$test");
 function file_path_completer () {
+    keywords(arguments, $test = constantly(true));
     completer.call(this);
+    this.test = arguments.$test;
 }
 file_path_completer.prototype = {
     constructor: file_path_completer,
     __proto__: completer.prototype,
     toString: function () "#<file_path_completer>",
+    test: null,
     separator_p: function (s) {
         return s == "/" || (WINDOWS && s == "\\");
     },
@@ -46,26 +55,30 @@ file_path_completer.prototype = {
             var iter = dir.directoryEntries;
             while (iter.hasMoreElements()) {
                 var e = iter.getNext().QueryInterface(Ci.nsIFile);
-                ents.push(e);
+                if (this.test(e))
+                    ents.push(e);
             }
         } catch (e) {
             return null;
         }
-        return new file_name_completions(this, ents);
+        return new file_path_completions(this, ents);
     }
 };
 
 
 /* keywords: $prompt, $initial_value, $history, $completer, $auto_complete */
 minibuffer.prototype.read_file_path = function () {
-    keywords(arguments, $prompt = "File:", $initial_value = cwd.path,
-             $history = "file");
+    keywords(arguments,
+             $prompt = "File:",
+             $initial_value = cwd.path,
+             $history = "file",
+             $completer = null);
     var result = yield this.read(
         $prompt = arguments.$prompt,
         $initial_value = arguments.$initial_value,
         $history = arguments.$history,
-        $completer = new file_path_completer(),
-        $auto_complete = true);
+        $completer = arguments.$completer || new file_path_completer(),
+        $auto_complete);
     yield co_return(result);
 };
 
@@ -74,10 +87,36 @@ minibuffer.prototype.read_file = function () {
     yield co_return(make_file(result));
 };
 
-// FIXME
-minibuffer.prototype.read_existing_file = minibuffer.prototype.read_file;
-minibuffer.prototype.read_directory_path = minibuffer.prototype.read_file_path;
-minibuffer.prototype.read_existing_directory_path = minibuffer.prototype.read_directory_path;
+minibuffer.prototype.read_existing_file = function () {
+    var result = yield this.read_file_path(
+        forward_keywords(arguments),
+        $require_match);
+    yield co_return(result);
+};
+
+minibuffer.prototype.read_directory_path = function () {
+    function validator (x) {
+        try {
+            return directory_p(make_file(x));
+        } catch (e) {
+            return false;
+        }
+    }
+    var result = yield this.read_file_path(
+        forward_keywords(arguments),
+        $completer = new file_path_completer($test = directory_p),
+        $validator = validator); //XXX: check if this works.  it's okay if
+                                 //the result doesn't exist, but not okay
+                                 //if it exists but is not a directory.
+    yield co_return(result);
+};
+
+minibuffer.prototype.read_existing_directory_path = function () {
+    var result = yield this.read_directory_path(
+        forward_keywords(arguments),
+        $require_match);
+    yield co_return(result);
+};
 
 minibuffer.prototype.read_file_check_overwrite = function () {
     keywords(arguments);
