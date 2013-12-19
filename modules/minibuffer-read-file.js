@@ -46,17 +46,24 @@ file_path_completer.prototype = {
         var ents = [];
         try {
             var f = make_file(s);
-            if (f.exists() && f.isDirectory())
+            if (f.exists() && f.isDirectory()) {
                 var dir = f;
-            else
+                var leaf = "";
+            } else {
                 dir = f.parent;
+                leaf = f.leafName;
+            }
+            var ll = leaf.length;
             if (! dir.exists())
                 return null;
             var iter = dir.directoryEntries;
             while (iter.hasMoreElements()) {
                 var e = iter.getNext().QueryInterface(Ci.nsIFile);
-                if (this.test(e))
+                if (e.leafName.substr(0, ll) == leaf &&
+                    this.test(e))
+                {
                     ents.push(e);
+                }
             }
         } catch (e) {
             return null;
