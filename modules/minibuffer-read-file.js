@@ -14,6 +14,10 @@ function directory_p (file) {
     return file.exists() && file.isDirectory();
 }
 
+function separator_p (s) {
+    return s == "/" || (WINDOWS && s == "\\");
+}
+
 
 function file_path_completions (completer, data, suffix) {
     completions.call(this, completer, data);
@@ -27,8 +31,12 @@ file_path_completions.prototype = {
     get_string: function (i) this.data[i].path,
     get_input_state: function (i) {
         var s = this.get_string(i);
-        if (this.data[i].isDirectory())
+        if (this.data[i].isDirectory() &&
+            (this.suffix == "" ||
+             ! separator_p(this.suffix[0])))
+        {
             s += "/";
+        }
         var sel = s.length;
         return [s + this.suffix, sel, sel];
     }
@@ -46,13 +54,9 @@ file_path_completer.prototype = {
     __proto__: completer.prototype,
     toString: function () "#<file_path_completer>",
     test: null,
-    separator_p: function (s) {
-        return s == "/" || (WINDOWS && s == "\\");
-    },
     complete: function (input, pos) {
         var s = input.substring(0, pos);
         var suffix = input.substring(pos);
-        var next_char_separator_p = this.separator_p(input.substr(pos, 1));
         var ents = [];
         try {
             var f = make_file(s);
