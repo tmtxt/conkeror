@@ -15,14 +15,23 @@ function directory_p (file) {
 }
 
 
-function file_path_completions (completer, data) {
+function file_path_completions (completer, data, suffix) {
     completions.call(this, completer, data);
+    this.suffix = suffix;
 }
 file_path_completions.prototype = {
     constructor: file_path_completions,
     __proto__: completions.prototype,
     toString: function () "#<file_path_completions>",
-    get_string: function (i) this.data[i].path
+    suffix: null,
+    get_string: function (i) this.data[i].path,
+    get_input_state: function (i) {
+        var s = this.get_string(i);
+        if (this.data[i].isDirectory())
+            s += "/";
+        var sel = s.length;
+        return [s + this.suffix, sel, sel];
+    }
 };
 
 
@@ -41,7 +50,8 @@ file_path_completer.prototype = {
         return s == "/" || (WINDOWS && s == "\\");
     },
     complete: function (input, pos) {
-        var s = input.substring(input, pos);
+        var s = input.substring(0, pos);
+        var suffix = input.substring(pos);
         var next_char_separator_p = this.separator_p(input.substr(pos, 1));
         var ents = [];
         try {
@@ -68,7 +78,7 @@ file_path_completer.prototype = {
         } catch (e) {
             return null;
         }
-        return new file_path_completions(this, ents);
+        return new file_path_completions(this, ents, suffix);
     }
 };
 
