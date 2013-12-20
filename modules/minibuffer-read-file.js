@@ -56,7 +56,7 @@ file_path_completer.prototype = {
         var ents = [];
         try {
             var f = make_file(s);
-            if (f.exists() && f.isDirectory()) {
+            if (directory_p(f)) {
                 var dir = f;
                 var leaf = "";
             } else {
@@ -143,7 +143,8 @@ minibuffer.prototype.read_file_check_overwrite = function () {
                                              $initial_value = initial_value);
         var file = make_file(path);
         if (file.exists()) {
-            var overwrite = yield this.read_yes_or_no($prompt = "Overwrite existing file " + path + "?");
+            var overwrite = yield this.read_yes_or_no(
+                $prompt = "Overwrite existing file " + path + "?");
             if (!overwrite) {
                 initial_value = path;
                 continue;
