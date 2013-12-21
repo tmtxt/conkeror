@@ -424,8 +424,10 @@ interactive("read-url-kill-item",
         var s = I.window.minibuffer.current_state;
         var i = s.selected_completion_index;
         var c = s.completions;
-        if (i == -1)
+        if (i == -1) {
+            I.minibuffer.message("No completion selected");
             return;
+        }
         var item = c.get_value(i);
         if (item instanceof Ci.nsINavHistoryResultNode) {
             var uri = make_uri(item.uri);
