@@ -60,6 +60,7 @@ define_key(minibuffer_message_keymap, "C-g", "minibuffer-abort");
  */
 define_fallthrough(read_buffer_keymap, match_any_unmodified_character);
 
+define_key(read_buffer_keymap, "C-x C-k", "read-buffer-kill-buffer");
 define_key(read_buffer_keymap, "C-k", "read-buffer-kill-buffer");
 
 
@@ -68,4 +69,4 @@ define_key(read_buffer_keymap, "C-k", "read-buffer-kill-buffer");
  */
 define_fallthrough(read_url_keymap, match_any_unmodified_character);
 
-define_key(read_url_keymap, "C-k", "read-url-kill-item");
+define_key(read_url_keymap, "C-x C-k", "read-url-kill-item");
