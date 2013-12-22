@@ -910,8 +910,10 @@ interactive("read-buffer-kill-buffer",
         var s = I.window.minibuffer.current_state;
         var i = s.selected_completion_index;
         var c = s.completions;
-        if (i == -1)
+        if (i == -1) {
+            I.minibuffer.message("No buffer selected");
             return;
+        }
         kill_buffer(c.get_value(i));
         s.completer.refresh();
         s.handle_input(I.window.minibuffer);
