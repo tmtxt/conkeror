@@ -16,6 +16,7 @@ COPYING file.
     contenttitlesetting="false"
     title="Conkeror"
     id="main-window"
+    hidechrome="true"
     width="640" height="480"
     persist="screenX screenY width height sizemode"
     windowtype="navigator:browser">
